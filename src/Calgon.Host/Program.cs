@@ -1,4 +1,5 @@
 using Calgon.Host.Extensions;
+using Calgon.Host.Hubs.Game;
 using Calgon.Host.Mvc;
 using Scalar.AspNetCore;
 
@@ -14,11 +15,17 @@ builder
 builder
     .Services
     .AddModule<MvcModule>()
-    .AddModule<OpenApiModule>();
+    .AddModule<OpenApiModule>()
+    .AddModule<CorsModule>()
+    .AddModule<SignalRModule>();
 
 var app = builder.Build();
 
+app.UseCors();
+
 app.MapControllers();
+app.MapHub<GameHub>("/hubs/game");
+
 app.MapOpenApi("/_/openapi/v1.json");
 app.MapScalarApiReference(
     "/_/openapi/scalar",
