@@ -10,6 +10,7 @@ internal sealed class RoomsController(RoomService service) : ApplicationControll
     [HttpGet]
     public FilteredRoomsModel GetRooms([FromQuery] string? searchPhrase = null)
     {
+        service.GetRoom();
         throw new NotImplementedException();
     }
 
