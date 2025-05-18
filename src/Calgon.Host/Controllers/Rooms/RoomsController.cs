@@ -1,5 +1,6 @@
 using Calgon.Host.Controllers.Rooms.Models;
 using Calgon.Host.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Calgon.Host.Controllers.Rooms;
@@ -8,6 +9,7 @@ namespace Calgon.Host.Controllers.Rooms;
 internal sealed class RoomsController(RoomService service) : ApplicationController
 {
     [HttpGet]
+    [Authorize]
     public FilteredRoomsModel GetRooms([FromQuery] string? searchPhrase = null)
     {
         service.GetRoom();

@@ -6,6 +6,7 @@ public class Room
     public string Name { get; set; } = string.Empty;
     public string InvitationCode { get; set; } = string.Empty;
     public RoomStatus Status { get; set; }
+    public string CreatedBy { get; set; } = string.Empty;
     
     public ICollection<RoomMember> RoomMembers { get; set; } = null!;
 }
