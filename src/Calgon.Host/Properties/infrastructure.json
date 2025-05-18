@@ -1,4 +1,5 @@
 {
     "Infrastructure": {
+        "ConnectionString": "Host=localhost;Username=app;Password=app;Database=app"
     }
 }

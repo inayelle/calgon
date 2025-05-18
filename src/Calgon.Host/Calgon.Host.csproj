@@ -8,14 +8,21 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Scalar.AspNetCore" Version="2.2.7"/>
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.4"/>
+        <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.5" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.5" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.5">
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+          <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
+        <PackageReference Include="Scalar.AspNetCore" Version="2.2.7" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.4" />
     </ItemGroup>
 
     <ItemGroup>
-        <None Include="Properties\launchSettings.json" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never"/>
-        <None Include="Properties\application.json" CopyToOutputDirectory="Always" CopyToPublishDirectory="Never"/>
-        <None Include="Properties\infrastructure.json" CopyToOutputDirectory="Always" CopyToPublishDirectory="Never"/>
+        <None Include="Properties\launchSettings.json" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" />
+        <None Include="Properties\application.json" CopyToOutputDirectory="Always" CopyToPublishDirectory="Never" />
+        <None Include="Properties\infrastructure.json" CopyToOutputDirectory="Always" CopyToPublishDirectory="Never" />
     </ItemGroup>
 
 </Project>
