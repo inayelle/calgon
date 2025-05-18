@@ -2,7 +2,7 @@ namespace Calgon.Host.Data.Entities;
 
 public class Room
 {
-    public Guid Id { get; set; }
+    public Guid Id { get; set; } = Guid.NewGuid();
     public string Name { get; set; } = string.Empty;
     public string InvitationCode { get; set; } = string.Empty;
     public RoomStatus Status { get; set; }

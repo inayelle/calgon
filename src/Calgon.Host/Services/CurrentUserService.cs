@@ -2,5 +2,5 @@ namespace Calgon.Host.Services;
 
 public class CurrentUserService
 {
-    public string? CurrentUserId { get; set; }
+    public virtual string? CurrentUserId { get; set; }
 }

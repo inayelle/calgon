@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Calgon.Host.Data;
+using Calgon.Host.Controllers.Rooms.Models;
 using Calgon.Host.Data.Entities;
 using Calgon.Host.Services;
 using Microsoft.EntityFrameworkCore;
@@ -42,20 +43,21 @@ public class RoomServiceTests
     {
         _mockRoomDbSet = new Mock<DbSet<Room>>();
         
-        _mockRoomDbSet.As<IQueryable<Room>>().Setup(m => m.Provider).Returns(RoomMemberData.Provider);
-        _mockRoomDbSet.As<IQueryable<Room>>().Setup(m => m.Expression).Returns(RoomMemberData.Expression);
-        _mockRoomDbSet.As<IQueryable<Room>>().Setup(m => m.ElementType).Returns(RoomMemberData.ElementType);
-        _mockRoomDbSet.As<IQueryable<Room>>().Setup(m => m.GetEnumerator()).Returns(() => RoomMemberData.GetEnumerator());
+        _mockRoomDbSet.As<IQueryable<Room>>().Setup(m => m.Provider).Returns(RoomData.Provider);
+        _mockRoomDbSet.As<IQueryable<Room>>().Setup(m => m.Expression).Returns(RoomData.Expression);
+        _mockRoomDbSet.As<IQueryable<Room>>().Setup(m => m.ElementType).Returns(RoomData.ElementType);
+        _mockRoomDbSet.As<IQueryable<Room>>().Setup(m => m.GetEnumerator()).Returns(() => RoomData.GetEnumerator());
         
         _mockRoomMemberDbSet = new Mock<DbSet<RoomMember>>();
         
-        _mockRoomMemberDbSet.As<IQueryable<RoomMember>>().Setup(m => m.Provider).Returns(RoomData.Provider);
-        _mockRoomMemberDbSet.As<IQueryable<RoomMember>>().Setup(m => m.Expression).Returns(RoomData.Expression);
-        _mockRoomMemberDbSet.As<IQueryable<RoomMember>>().Setup(m => m.ElementType).Returns(RoomData.ElementType);
-        _mockRoomMemberDbSet.As<IQueryable<RoomMember>>().Setup(m => m.GetEnumerator()).Returns(() => RoomData.GetEnumerator());
+        _mockRoomMemberDbSet.As<IQueryable<RoomMember>>().Setup(m => m.Provider).Returns(RoomMemberData.Provider);
+        _mockRoomMemberDbSet.As<IQueryable<RoomMember>>().Setup(m => m.Expression).Returns(RoomMemberData.Expression);
+        _mockRoomMemberDbSet.As<IQueryable<RoomMember>>().Setup(m => m.ElementType).Returns(RoomMemberData.ElementType);
+        _mockRoomMemberDbSet.As<IQueryable<RoomMember>>().Setup(m => m.GetEnumerator()).Returns(() => RoomMemberData.GetEnumerator());
 
         _mockContext = new Mock<ApplicationDbContext>();
         _mockContext.Setup(m => m.Rooms).Returns(_mockRoomDbSet.Object);
+        _mockContext.Setup(m => m.RoomMembers).Returns(_mockRoomMemberDbSet.Object);
         
         _mockCurrentUser = new Mock<CurrentUserService>();
     }
@@ -65,10 +67,27 @@ public class RoomServiceTests
         _mockCurrentUser.Setup(m => m.CurrentUserId).Returns(userId);
     }
 
-    [TestCase("1", "My room", "")]
-    public void Test_CreateRoom(string userId, string name, string expected)
+    [TestCase("123", "My room")]
+    public async Task Test_CreateRoom(string userId, string name)
     {
-        
+        // Arrange
+        LogInAs(userId);
+
+        var roomService = new RoomService(_mockContext.Object, _mockCurrentUser.Object, null!);
+
+        var model = new CreateRoomModel
+        {
+            Name = name
+        };
+
+        // Act
+        var result = await roomService.Create(model);
+
+        // Assert
+        var room = RoomData.FirstOrDefault(x => x.Name == name && x.CreatedBy == userId);
+        Assert.That(room, Is.Not.Null);
+        Assert.That(RoomMemberData.Where(x => x.UserId == userId && x.RoomId == room.Id).Any(), Is.True);
+        Assert.That(result.InvitationCode == room.InvitationCode);
     }
     
 }
