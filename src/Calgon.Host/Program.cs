@@ -34,7 +34,8 @@ builder.Services.AddIdentityApiEndpoints<IdentityUser>()
 builder
     .Services
     .AddModule<MvcModule>()
-    .AddModule<OpenApiModule>();
+    .AddModule<OpenApiModule>()
+    .AddModule<RoomModule>();
 
 builder.Services.AddDbContext<ApplicationDbContext>(
     options => options.UseNpgsql(
