@@ -21,11 +21,11 @@ public class RoomService(ApplicationDbContext context, ICurrentUserService curre
             Name = model.Name,
             InvitationCode = Guid.NewGuid().ToString().Substring(0, 8),
             Status = RoomStatus.Open,
-            CreatedBy = currentUser.CurrentUserId ?? throw new InvalidOperationException("Current user ID cannot be null.")
+            CreatedBy = currentUser.CurrentUserId!
         };
         var roomMember = new RoomMember
         {
-            UserId = currentUser.CurrentUserId,
+            UserId = currentUser.CurrentUserId!,
             RoomId = room.Id,
         };
 
@@ -36,6 +36,38 @@ public class RoomService(ApplicationDbContext context, ICurrentUserService curre
 
         return room;
     }
+
+    public async Task<Guid> Join(string invitationCode)
+    {
+        var room = await context.Rooms.Include((r) => r.RoomMembers).FirstOrDefaultAsync(x => x.InvitationCode == invitationCode);
+        if (room == null)
+        {
+            throw new ArgumentException("Room not found.");
+        } else if (room.Status != RoomStatus.Open)
+        {
+            throw new InvalidDataException("Room is not open.");
+        } else if (room.RoomMembers.Any(x => x.UserId == currentUser.CurrentUserId))
+        {
+            throw new InvalidOperationException("User is already in a room.");
+        }
+
+        if (await context.RoomMembers.AnyAsync(x => x.UserId == currentUser.CurrentUserId && x.RoomId != room.Id))
+        {
+            throw new InvalidOperationException("User is already in a room.");
+        }
+
+        var roomMember = new RoomMember
+        {
+            UserId = currentUser.CurrentUserId!,
+            RoomId = room.Id,
+        };
+
+        context.RoomMembers.Add(roomMember);
+        await context.SaveChangesAsync();
+
+        return room.Id;
+    }
+
     public void GetRoom()
     {
         Console.WriteLine(currentUser.CurrentUserId);

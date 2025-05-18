@@ -31,6 +31,36 @@ internal sealed class RoomsController(RoomService service) : ApplicationControll
         }
     }
 
+    [HttpGet("join/{invitation_code}")]
+    public async Task<ActionResult<RoomJoinedModel>> JoinRoom([FromRoute] string invitationCode)
+    {
+        if (string.IsNullOrWhiteSpace(invitationCode))
+        {
+            return BadRequest("Invitation code cannot be empty.");
+        }
+
+        try
+        {
+            var roomId = await service.Join(invitationCode);
+            return Ok(new RoomJoinedModel
+            {
+                RoomId = roomId
+            });
+        }
+        catch (ArgumentException ex)
+        {
+            return NotFound(ex.Message);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(ex.Message);
+        }
+        catch (InvalidDataException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
 
 
     [HttpGet]
