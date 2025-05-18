@@ -7,6 +7,6 @@ namespace Calgon.Host.Data;
 
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : IdentityDbContext<IdentityUser>(options)
 {
-    public virtual DbSet<Room> Rooms { get; set; } = null!;
-    public virtual DbSet<RoomMember> RoomMembers { get; set; } = null!;
+    public DbSet<Room> Rooms { get; set; } = null!;
+    public DbSet<RoomMember> RoomMembers { get; set; } = null!;
 }

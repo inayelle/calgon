@@ -1,5 +1,6 @@
 using Calgon.Host.Data;
 using Calgon.Host.Extensions;
+using Calgon.Host.Interfaces;
 using Calgon.Host.Middlewares;
 using Calgon.Host.Mvc;
 using Calgon.Host.Services;
@@ -39,15 +40,15 @@ builder
     .AddModule<OpenApiModule>()
     .AddModule<RoomModule>();
 
-builder.Services
-    .AddScoped<CurrentUserMiddleware>()
-    .AddScoped<CurrentUserService>();
-
 builder.Services.AddDbContext<ApplicationDbContext>(
     options => options.UseNpgsql(
         builder.Configuration["Infrastructure:ConnectionString"]
     )
 );
+
+builder.Services
+    .AddScoped<CurrentUserMiddleware>()
+    .AddScoped<ICurrentUserService, CurrentUserService>();
 
 var app = builder.Build();
 

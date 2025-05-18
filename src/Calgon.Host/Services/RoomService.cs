@@ -1,12 +1,13 @@
 using Calgon.Host.Controllers.Rooms.Models;
 using Calgon.Host.Data;
 using Calgon.Host.Data.Entities;
+using Calgon.Host.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace Calgon.Host.Services;
 
-public class RoomService(ApplicationDbContext context, CurrentUserService currentUser, UserManager<IdentityUser> userManager)
+public class RoomService(ApplicationDbContext context, ICurrentUserService currentUser, UserManager<IdentityUser> userManager)
 {
     public async Task<Room> Create(CreateRoomModel model)
     {

@@ -1,6 +1,8 @@
+using Calgon.Host.Interfaces;
+
 namespace Calgon.Host.Services;
 
-public class CurrentUserService
+public class CurrentUserService : ICurrentUserService
 {
-    public virtual string? CurrentUserId { get; set; }
+    public string? CurrentUserId { get; set; }
 }
