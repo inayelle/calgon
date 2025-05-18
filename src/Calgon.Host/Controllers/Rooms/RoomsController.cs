@@ -8,17 +8,36 @@ namespace Calgon.Host.Controllers.Rooms;
 [Route("rooms")]
 internal sealed class RoomsController(RoomService service) : ApplicationController
 {
+    [HttpPost]
+    [Authorize]
+    public async Task<ActionResult<RoomCreatedModel>> CreateRoom([FromBody] CreateRoomModel model)
+    {
+        try
+        {
+            model.Validate();
+            var room = await service.Create(model);
+            return Ok(new RoomCreatedModel
+            {
+                InvitationCode = room.InvitationCode
+            });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(ex.Message);
+        }
+    }
+
+
+
     [HttpGet]
     [Authorize]
     public FilteredRoomsModel GetRooms([FromQuery] string? searchPhrase = null)
     {
         service.GetRoom();
-        throw new NotImplementedException();
-    }
-
-    [HttpPost]
-    public RoomCreatedModel CreateRoom([FromBody] CreateRoomModel model)
-    {
         throw new NotImplementedException();
     }
 }
