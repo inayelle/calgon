@@ -1,12 +1,23 @@
 services:
   db:
-    image: postgres
+    image: postgres:16
+    container_name: postgres
     ports:
       - "5432:5432"
     environment:
       - POSTGRES_DB=app
       - POSTGRES_USER=app
       - POSTGRES_PASSWORD=app
+      - PGDATA="/var/lib/postgresql/data/pgdata"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U weatherapp -d weatherapp" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
 
   pg-admin:
     image: dpage/pgadmin4
@@ -17,3 +28,6 @@ services:
       - PGADMIN_DEFAULT_PASSWORD=app
     volumes:
       - ./pgadmin/servers.json:/pgadmin4/servers.json
+
+volumes:
+  db-data:
