@@ -1,6 +1,7 @@
 using Calgon.Host.Controllers.Rooms.Models;
 using Calgon.Host.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Calgon.Host.Controllers.Rooms;
@@ -18,7 +19,8 @@ internal sealed class RoomsController(RoomService service) : ApplicationControll
             var room = await service.Create(model);
             return Ok(new RoomCreatedModel
             {
-                InvitationCode = room.InvitationCode
+                InvitationCode = room.InvitationCode,
+                RoomId = room.Id.ToString()
             });
         }
         catch (ArgumentException ex)
@@ -31,7 +33,8 @@ internal sealed class RoomsController(RoomService service) : ApplicationControll
         }
     }
 
-    [HttpGet("join/{invitation_code}")]
+    [HttpGet("join/{invitationCode}")]
+    [Authorize]
     public async Task<ActionResult<RoomJoinedModel>> JoinRoom([FromRoute] string invitationCode)
     {
         if (string.IsNullOrWhiteSpace(invitationCode))
@@ -61,13 +64,50 @@ internal sealed class RoomsController(RoomService service) : ApplicationControll
         }
     }
 
-
-
-    [HttpGet]
+    [HttpGet("{roomId}")]
     [Authorize]
-    public FilteredRoomsModel GetRooms([FromQuery] string? searchPhrase = null)
+    public async Task<ActionResult<RoomDetailsModel>> GetRoom([FromRoute] Guid roomId)
     {
-        service.GetRoom();
-        throw new NotImplementedException();
+        if (roomId == Guid.Empty)
+        {
+            return BadRequest("Room ID cannot be empty.");
+        }
+        try
+        {
+            var roomInfo = await service.GetInfo(roomId);
+            return Ok(roomInfo);
+        }
+        catch (ArgumentException ex)
+        {
+            return NotFound(ex.Message);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return StatusCode(StatusCodes.Status403Forbidden, ex.Message);
+        }
+    }
+
+    [HttpPost("/leave/{roomId}")]
+    [Authorize]
+    public async Task<ActionResult> LeaveRoom([FromRoute] Guid roomId)
+    {
+        // TODO: DELETE ROOM WHEN LAST USER OR HOST LEAVES
+        if (roomId == Guid.Empty)
+        {
+            return BadRequest("Room ID cannot be empty.");
+        }
+        try
+        {
+            await service.Leave(roomId);
+            return Ok();
+        }
+        catch (ArgumentException ex)
+        {
+            return NotFound(ex.Message);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 }

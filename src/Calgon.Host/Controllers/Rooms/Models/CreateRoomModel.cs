@@ -20,4 +20,5 @@ public sealed class CreateRoomModel
 internal sealed class RoomCreatedModel
 {
     public required string InvitationCode { get; init; }
+    public required string RoomId { get; init; }
 }

@@ -26,6 +26,8 @@ public class RoomServiceTests
     }
 
     [TestCase("123", "My room")]
+    [TestCase("12345", "My room")]
+    [TestCase("456", "Another room")]
     public async Task Test_CreateRoom(string userId, string name)
     {
         // Arrange

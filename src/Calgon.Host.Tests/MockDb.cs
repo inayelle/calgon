@@ -12,7 +12,7 @@ public class MockDb
     public MockDb()
     {
         var contextOptions = new DbContextOptionsBuilder<ApplicationDbContext>()
-            .UseInMemoryDatabase("BloggingControllerTest")
+            .UseInMemoryDatabase("Calgon4ik")
             .ConfigureWarnings(b => b.Ignore(InMemoryEventId.TransactionIgnoredWarning))
             .Options;
 

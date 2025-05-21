@@ -1,9 +1,9 @@
 using System.Security.Claims;
-using Calgon.Host.Services;
+using Calgon.Host.Interfaces;
 
 namespace Calgon.Host.Middlewares;
 
-public class CurrentUserMiddleware(CurrentUserService currentUserService) : IMiddleware
+public class CurrentUserMiddleware(ICurrentUserService currentUserService) : IMiddleware
 {
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {

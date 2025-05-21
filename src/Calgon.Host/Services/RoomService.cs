@@ -15,7 +15,7 @@ public class RoomService(ApplicationDbContext context, ICurrentUserService curre
         {
             throw new InvalidOperationException("User is already in a room.");
         }
-        
+
         var room = new Room
         {
             Name = model.Name,
@@ -39,21 +39,27 @@ public class RoomService(ApplicationDbContext context, ICurrentUserService curre
 
     public async Task<Guid> Join(string invitationCode)
     {
-        var room = await context.Rooms.Include((r) => r.RoomMembers).FirstOrDefaultAsync(x => x.InvitationCode == invitationCode);
-        if (room == null)
-        {
-            throw new ArgumentException("Room not found.");
-        } else if (room.Status != RoomStatus.Open)
-        {
-            throw new InvalidDataException("Room is not open.");
-        } else if (room.RoomMembers.Any(x => x.UserId == currentUser.CurrentUserId))
+        if (await context.RoomMembers.AnyAsync(x => x.UserId == currentUser.CurrentUserId))
         {
             throw new InvalidOperationException("User is already in a room.");
         }
 
-        if (await context.RoomMembers.AnyAsync(x => x.UserId == currentUser.CurrentUserId && x.RoomId != room.Id))
+        var room = await context.Rooms.Include((r) => r.RoomMembers).FirstOrDefaultAsync(x => x.InvitationCode == invitationCode);
+        if (room == null)
+        {
+            throw new ArgumentException("Room not found.");
+        }
+        else if (room.Status != RoomStatus.Open)
+        {
+            throw new InvalidDataException("Room is not open.");
+        }
+        else if (room.RoomMembers.Any(x => x.UserId == currentUser.CurrentUserId))
         {
             throw new InvalidOperationException("User is already in a room.");
+        }
+        else if (room.RoomMembers.Count >= 6) // TODO: move
+        {
+            throw new InvalidDataException("Room is full.");
         }
 
         var roomMember = new RoomMember
@@ -68,8 +74,59 @@ public class RoomService(ApplicationDbContext context, ICurrentUserService curre
         return room.Id;
     }
 
-    public void GetRoom()
+    public async Task<RoomDetailsModel> GetInfo(Guid roomId)
     {
-        Console.WriteLine(currentUser.CurrentUserId);
+        var room = await context.Rooms.Include((r) => r.RoomMembers).FirstOrDefaultAsync(x => x.Id == roomId);
+        if (room == null)
+        {
+            throw new ArgumentException("Room not found.");
+        }
+
+        // if user is not in the room
+        if (!room.RoomMembers.Any(x => x.UserId == currentUser.CurrentUserId))
+        {
+            throw new InvalidOperationException("User is not in the room.");
+        }
+
+        // Fetch all users and perform the filtering in memory
+        var roomMemberIds = room.RoomMembers.Select(rm => rm.UserId).ToList();
+        var users = await context.Users
+            .Where(x => roomMemberIds.Contains(x.Id))
+            .Select(x => new RoomMemberModel
+            {
+                UserId = x.Id,
+                UserName = x.UserName!,
+            })
+            .ToListAsync();
+
+        return new RoomDetailsModel
+        {
+            Name = room.Name,
+            InvitationCode = room.InvitationCode,
+            Status = room.Status,
+            Members = users,
+            RoomCreatorId = room.CreatedBy
+        };
     }
+
+    public async Task<Room> Leave(Guid roomId)
+    {
+        var room = await context.Rooms.Include((r) => r.RoomMembers).FirstOrDefaultAsync(x => x.Id == roomId);
+        if (room == null)
+        {
+            throw new ArgumentException("Room not found.");
+        }
+
+        var roomMember = await context.RoomMembers.FirstOrDefaultAsync(x => x.UserId == currentUser.CurrentUserId && x.RoomId == roomId);
+        if (roomMember == null)
+        {
+            throw new InvalidOperationException("User is not in the room.");
+        }
+
+        context.RoomMembers.Remove(roomMember);
+        await context.SaveChangesAsync();
+
+        return room;
+    }
+    
 }
