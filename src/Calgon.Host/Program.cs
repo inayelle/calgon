@@ -1,6 +1,9 @@
 using Calgon.Host.Data;
 using Calgon.Host.Extensions;
+using Calgon.Host.Interfaces;
+using Calgon.Host.Middlewares;
 using Calgon.Host.Mvc;
+using Calgon.Host.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
@@ -34,13 +37,18 @@ builder.Services.AddIdentityApiEndpoints<IdentityUser>()
 builder
     .Services
     .AddModule<MvcModule>()
-    .AddModule<OpenApiModule>();
+    .AddModule<OpenApiModule>()
+    .AddModule<RoomModule>();
 
 builder.Services.AddDbContext<ApplicationDbContext>(
     options => options.UseNpgsql(
         builder.Configuration["Infrastructure:ConnectionString"]
     )
 );
+
+builder.Services
+    .AddScoped<CurrentUserMiddleware>()
+    .AddScoped<ICurrentUserService, CurrentUserService>();
 
 var app = builder.Build();
 
@@ -57,6 +65,8 @@ app.MapScalarApiReference(
             .WithTheme(ScalarTheme.DeepSpace);
     }
 );
+
+app.UseMiddleware<CurrentUserMiddleware>();
 
 using (var scope = app.Services.CreateAsyncScope())
 {
