@@ -50,7 +50,21 @@ builder.Services
     .AddScoped<CurrentUserMiddleware>()
     .AddScoped<ICurrentUserService, CurrentUserService>();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("DynamicCorsPolicy", policy =>
+    {
+        policy
+            .SetIsOriginAllowed(_ => true) // Allow any origin
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
+});
+
 var app = builder.Build();
+
+app.UseCors("DynamicCorsPolicy");
 
 app.MapControllers();
 app.MapIdentityApi<IdentityUser>();
