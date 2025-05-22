@@ -5,6 +5,7 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <LangVersion>13</LangVersion>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     </PropertyGroup>
 
     <ItemGroup>
@@ -23,6 +24,12 @@
         <None Include="Properties\launchSettings.json" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" />
         <None Include="Properties\application.json" CopyToOutputDirectory="Always" CopyToPublishDirectory="Never" />
         <None Include="Properties\infrastructure.json" CopyToOutputDirectory="Always" CopyToPublishDirectory="Never" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="..\.dockerignore">
+        <Link>.dockerignore</Link>
+      </Content>
     </ItemGroup>
 
 </Project>
