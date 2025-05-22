@@ -49,15 +49,13 @@ public class RoomService(ApplicationDbContext context, ICurrentUserService curre
         {
             throw new ArgumentException("Room not found.");
         }
-        else if (room.Status != RoomStatus.Open)
+        
+        if (room.Status != RoomStatus.Open)
         {
             throw new InvalidDataException("Room is not open.");
         }
-        else if (room.RoomMembers.Any(x => x.UserId == currentUser.CurrentUserId))
-        {
-            throw new InvalidOperationException("User is already in a room.");
-        }
-        else if (room.RoomMembers.Count >= 6) // TODO: move
+        
+        if (room.RoomMembers.Count >= 6) // TODO: move
         {
             throw new InvalidDataException("Room is full.");
         }
@@ -89,22 +87,23 @@ public class RoomService(ApplicationDbContext context, ICurrentUserService curre
         }
 
         // Fetch all users and perform the filtering in memory
-        var roomMemberIds = room.RoomMembers.Select(rm => rm.UserId).ToList();
-        var users = await context.Users
-            .Where(x => roomMemberIds.Contains(x.Id))
-            .Select(x => new RoomMemberModel
-            {
-                UserId = x.Id,
-                UserName = x.UserName!,
-            })
-            .ToListAsync();
+        var roomUsers = await Task.WhenAll(
+            room.RoomMembers.Select(async (rm) => await userManager.FindByIdAsync(rm.UserId))
+            .ToList()
+        );
+
+        var roomMembers = roomUsers.Select(u => new RoomMemberModel
+        {
+            UserId = u!.Id,
+            UserName = u.UserName ?? u.Email!,
+        }).ToList();
 
         return new RoomDetailsModel
         {
             Name = room.Name,
             InvitationCode = room.InvitationCode,
             Status = room.Status,
-            Members = users,
+            Members = roomMembers,
             RoomCreatorId = room.CreatedBy
         };
     }
