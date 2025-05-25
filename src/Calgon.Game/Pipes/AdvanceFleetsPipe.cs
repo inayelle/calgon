@@ -2,7 +2,7 @@ using AnyKit.Pipelines;
 
 namespace Calgon.Game;
 
-internal sealed class AdvanceFleetsPipe
+internal sealed class AdvanceFleetsPipe : IGamePipe
 {
     public void Invoke(GameContext context, Pipeline<GameContext> next)
     {

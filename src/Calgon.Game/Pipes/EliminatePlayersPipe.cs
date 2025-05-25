@@ -2,7 +2,7 @@ using AnyKit.Pipelines;
 
 namespace Calgon.Game;
 
-internal sealed class EliminatePlayersPipe
+internal sealed class EliminatePlayersPipe : IGamePipe
 {
     public void Invoke(GameContext context, Pipeline<GameContext> next)
     {
