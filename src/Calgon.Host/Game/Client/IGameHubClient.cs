@@ -8,6 +8,7 @@ public interface IGameHubClient
     Task GameEnded(GameEndedArgs args);
 
     Task FleetSent(FleetSentArgs args);
+    Task FleetArrived(FleetArrivedArgs args);
 
     Task ShipsProduced(ShipsProducedArgs args);
 
