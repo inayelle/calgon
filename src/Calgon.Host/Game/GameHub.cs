@@ -17,6 +17,7 @@ public sealed class GameHub : Hub<IGameHubClient>, IGameEventDispatcher
             var task = @event switch
             {
                 GameStartedEvent gameStarted => SendEvent(client, gameStarted),
+                GameEndedEvent gameEnded => SendEvent(client, gameEnded),
                 ShipsProducedEvent shipsProduced => SendEvent(client, shipsProduced),
                 PlayerEliminatedEvent playerEliminated => SendEvent(client, playerEliminated),
                 _ => Task.CompletedTask,
@@ -30,6 +31,16 @@ public sealed class GameHub : Hub<IGameHubClient>, IGameEventDispatcher
     {
         return client.GameStarted(new GameStartedArgs());
     }
+
+    private static Task SendEvent(IGameHubClient client, GameEndedEvent @event)
+    {
+        return client.GameEnded(new GameEndedArgs
+            {
+                WinnerId = @event.Winner.Id,
+            }
+        );
+    }
+
     private static Task SendEvent(IGameHubClient client, ShipsProducedEvent @event)
     {
         return client.ShipsProduced(new ShipsProducedArgs
