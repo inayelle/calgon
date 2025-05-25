@@ -1,5 +1,3 @@
 namespace Calgon.Game;
 
-public interface IGameEvent
-{
-}
+public interface IGameEvent;
