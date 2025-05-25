@@ -1,5 +1,6 @@
 using Calgon.Game;
 using Calgon.Host.Game.Client;
+using Calgon.Host.Game.Client.Args;
 using Microsoft.AspNetCore.SignalR;
 
 namespace Calgon.Host.Game;
@@ -12,12 +13,24 @@ public sealed class GameHub : Hub<IGameHubClient>, IGameEventDispatcher
 
         foreach (var @event in events)
         {
+            // TODO: replace with a kind of dynamic dispatch
             var task = @event switch
             {
+                ShipsProducedEvent shipsProduced => SendEvent(client, shipsProduced),
                 _ => Task.CompletedTask,
             };
 
             await task;
         }
+    }
+
+    private static Task SendEvent(IGameHubClient client, ShipsProducedEvent @event)
+    {
+        return client.ShipsProduced(new ShipsProducedArgs
+            {
+                PlanetId = @event.Planet.Id,
+                Ships = @event.Planet.Ships,
+            }
+        );
     }
 }
