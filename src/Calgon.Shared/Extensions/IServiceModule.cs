@@ -1,11 +1,13 @@
-namespace Calgon.Host.Extensions;
+using Microsoft.Extensions.DependencyInjection;
 
-internal interface IServiceModule
+namespace Calgon.Shared;
+
+public interface IServiceModule
 {
     void ConfigureServices(IServiceCollection services);
 }
 
-internal static class ServiceModuleExtensions
+public static class ServiceModuleExtensions
 {
     public static IServiceCollection AddModule<TModule>(this IServiceCollection services)
         where TModule : IServiceModule, new()

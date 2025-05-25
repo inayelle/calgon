@@ -1,9 +1,9 @@
 using Calgon.Host.Data;
-using Calgon.Host.Extensions;
 using Calgon.Host.Interfaces;
 using Calgon.Host.Middlewares;
 using Calgon.Host.Mvc;
 using Calgon.Host.Services;
+using Calgon.Shared;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;

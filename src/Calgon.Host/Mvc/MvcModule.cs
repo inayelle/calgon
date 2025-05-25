@@ -1,8 +1,8 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Calgon.Host.Extensions;
 using Calgon.Host.Mvc.Features;
 using Calgon.Host.Mvc.Filters;
+using Calgon.Shared;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 

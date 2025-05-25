@@ -1,4 +1,4 @@
-using Calgon.Host.Extensions;
+using Calgon.Shared;
 
 namespace Calgon.Host.Mvc;
 
