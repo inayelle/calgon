@@ -1,3 +1,4 @@
+using Calgon.Game;
 using Calgon.Host.Data;
 using Calgon.Host.Interfaces;
 using Calgon.Host.Middlewares;
@@ -38,7 +39,8 @@ builder
     .Services
     .AddModule<MvcModule>()
     .AddModule<OpenApiModule>()
-    .AddModule<RoomModule>();
+    .AddModule<RoomModule>()
+    .AddModule<GameModule>();
 
 builder.Services.AddDbContext<ApplicationDbContext>(
     options => options.UseNpgsql(

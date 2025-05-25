@@ -27,6 +27,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Calgon.Game\Calgon.Game.csproj" />
       <ProjectReference Include="..\Calgon.Shared\Calgon.Shared.csproj" />
     </ItemGroup>
 
