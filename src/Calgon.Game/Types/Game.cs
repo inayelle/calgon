@@ -10,7 +10,6 @@ public sealed class Game
     private readonly Pipeline<GameContext> _pipeline;
 
     private readonly SemaphoreSlim _semaphore;
-    private readonly CancellationTokenSource _completion;
 
     public Game(Pipeline<GameContext> pipeline, GameContext context)
     {
@@ -18,7 +17,6 @@ public sealed class Game
         _context = context;
 
         _semaphore = new SemaphoreSlim(initialCount: 1, maxCount: 1);
-        _completion = new CancellationTokenSource();
     }
 
     public async Task Run()
@@ -58,13 +56,15 @@ public sealed class Game
     {
         var timer = new PeriodicTimer(TickPeriod);
 
-        while (await timer.WaitForNextTickAsync(_completion.Token))
+        while (await timer.WaitForNextTickAsync())
         {
             await _semaphore.WaitAsync();
 
             try
             {
-                Tick();
+                var events = Tick();
+
+                await DispatchEvents(events);
             }
             finally
             {
@@ -73,8 +73,19 @@ public sealed class Game
         }
     }
 
-    private void Tick()
+    private IEnumerable<IGameEvent> Tick()
     {
         _pipeline.Invoke(_context);
+
+        var events = _context.Events.ToList();
+
+        _context.Events.Clear();
+
+        return events;
+    }
+
+    private Task DispatchEvents(IEnumerable<IGameEvent> events)
+    {
+        throw new NotImplementedException();
     }
 }
