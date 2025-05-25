@@ -8,7 +8,9 @@ internal sealed class ProduceShipsPipe
     {
         foreach (var planet in context.Planets.Values)
         {
-            planet.ProduceShips();
+            var events = planet.ProduceShips();
+
+            context.Events.AddRange(events);
         }
 
         next(context);

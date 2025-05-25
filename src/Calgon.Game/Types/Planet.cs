@@ -4,16 +4,16 @@ namespace Calgon.Game;
 
 public sealed class Planet
 {
-    private const float BaseProductionRate = 0.1f;
+    private const float BaseProductionRate = 0.02f;
 
-    private float _ships;
+    private float _productionProgress;
 
     public Guid Id { get; }
     public Location Location { get; }
     public int Size { get; }
 
     public Player? Owner { get; private set; }
-    public int Ships => (int)_ships;
+    public int Ships { get; private set; }
 
     public bool Occupied => Owner is not null;
 
@@ -28,7 +28,7 @@ public sealed class Planet
     {
         Owner = player;
 
-        _ships = ships;
+        Ships = ships;
     }
 
     public void Accept(Fleet fleet)
@@ -57,7 +57,7 @@ public sealed class Planet
             return false;
         }
 
-        _ships -= ships;
+        Ships -= ships;
 
         fleet = new Fleet(
             Owner!,
@@ -69,25 +69,40 @@ public sealed class Planet
         return true;
     }
 
-    public void ProduceShips()
+    public IEnumerable<IGameEvent> ProduceShips()
     {
         if (!Occupied)
         {
-            return;
+            yield break;
         }
 
-        _ships += Size * BaseProductionRate;
+        _productionProgress += BaseProductionRate;
+
+        var ships = (int)MathF.Floor(_productionProgress);
+
+        if (ships <= 0)
+        {
+            yield break;
+        }
+
+        _productionProgress -= ships;
+        Ships += ships;
+
+        yield return new ShipsProducedEvent
+        {
+            Planet = this,
+        };
     }
 
     private void Capture(Fleet fleet)
     {
         Owner = fleet.Owner;
-        _ships = fleet.Ships;
+        Ships = fleet.Ships;
     }
 
     private void Reinforce(Fleet fleet)
     {
-        _ships += fleet.Ships;
+        Ships += fleet.Ships;
     }
 
     private void Battle(Fleet fleet)
@@ -98,14 +113,14 @@ public sealed class Planet
         {
             case 0:
                 Owner = null;
-                _ships = 0;
+                Ships = 0;
                 break;
             case < 0:
-                _ships = -diff;
+                Ships = -diff;
                 Owner = fleet.Owner;
                 break;
             case > 0:
-                _ships = diff;
+                Ships = diff;
                 break;
         }
     }
