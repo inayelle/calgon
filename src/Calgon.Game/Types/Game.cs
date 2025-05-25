@@ -1,10 +1,11 @@
 using AnyKit.Pipelines;
+using Calgon.Shared;
 
 namespace Calgon.Game;
 
 public sealed class Game
 {
-    private static readonly TimeSpan TickPeriod = TimeSpan.FromMilliseconds(100);
+    private static readonly TimeSpan TickPeriod = TimeSpan.FromMilliseconds(50);
 
     private readonly GameContext _context;
     private readonly Pipeline<GameContext> _pipeline;
@@ -30,9 +31,13 @@ public sealed class Game
         }
     }
 
-    public async Task SendFleet(Guid departurePlanetId, Guid destinationPlanetId, float portion)
+    public async Task SendFleet(
+        Guid departurePlanetId,
+        Guid destinationPlanetId,
+        float portion
+    )
     {
-        await _semaphore.WaitAsync();
+        using var lease = await _semaphore.Acquire();
 
         if (!_context.Planets.TryGetValue(departurePlanetId, out var departurePlanet))
         {
@@ -50,6 +55,12 @@ public sealed class Game
         }
 
         _context.Fleets.Add(fleet.Id, fleet);
+
+        await DispatchEvents(new FleetSentEvent
+            {
+                Fleet = fleet,
+            }
+        );
     }
 
     private async Task Loop()
@@ -58,18 +69,11 @@ public sealed class Game
 
         while (await timer.WaitForNextTickAsync())
         {
-            await _semaphore.WaitAsync();
+            using var lease = await _semaphore.Acquire();
 
-            try
-            {
-                var events = Tick();
+            var events = Tick();
 
-                await DispatchEvents(events);
-            }
-            finally
-            {
-                _semaphore.Release();
-            }
+            await DispatchEvents(events);
         }
     }
 
@@ -84,7 +88,7 @@ public sealed class Game
         return events;
     }
 
-    private Task DispatchEvents(IEnumerable<IGameEvent> events)
+    private Task DispatchEvents(params IEnumerable<IGameEvent> events)
     {
         throw new NotImplementedException();
     }
