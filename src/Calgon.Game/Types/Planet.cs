@@ -15,8 +15,6 @@ public sealed class Planet
     public Player? Owner { get; private set; }
     public int Ships { get; private set; }
 
-    public bool Occupied => Owner is not null;
-
     public Planet(Location location, int size)
     {
         Id = Guid.NewGuid();
@@ -76,7 +74,7 @@ public sealed class Planet
 
     public IEnumerable<IGameEvent> ProduceShips()
     {
-        if (!Occupied)
+        if (Owner is null)
         {
             yield break;
         }

@@ -15,4 +15,14 @@ public sealed class Player : IEquatable<Player>
     {
         return other?.Id == Id;
     }
+
+    public override bool Equals(object? obj)
+    {
+        return obj is Player other && Equals(other);
+    }
+
+    public override int GetHashCode()
+    {
+        return Id.GetHashCode();
+    }
 }
