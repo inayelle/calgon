@@ -2,13 +2,13 @@ namespace Calgon.Game;
 
 public sealed class GameContext
 {
+    private readonly List<IGameEvent> _events;
+
     public Guid Id { get; }
 
     public Dictionary<Guid, Player> Players { get; }
     public Dictionary<Guid, Planet> Planets { get; }
     public Dictionary<Guid, Fleet> Fleets { get; }
-
-    public List<IGameEvent> Events { get; }
 
     public GameContext(
         IEnumerable<Player> players,
@@ -21,6 +21,20 @@ public sealed class GameContext
         Planets = planets.ToDictionary(planet => planet.Id);
         Fleets = new Dictionary<Guid, Fleet>(capacity: 32);
 
-        Events = new List<IGameEvent>(capacity: 32);
+        _events = new List<IGameEvent>(capacity: 32);
+    }
+
+    public void AddEvents(params IEnumerable<IGameEvent> events)
+    {
+        _events.AddRange(events);
+    }
+
+    public IGameEvent[] FlushEvents()
+    {
+        var events = _events.ToArray();
+
+        _events.Clear();
+
+        return events;
     }
 }

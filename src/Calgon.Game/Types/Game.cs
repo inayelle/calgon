@@ -77,15 +77,11 @@ public sealed class Game
         }
     }
 
-    private IEnumerable<IGameEvent> Tick()
+    private IGameEvent[] Tick()
     {
         _pipeline.Invoke(_context);
 
-        var events = _context.Events.ToList();
-
-        _context.Events.Clear();
-
-        return events;
+        return _context.FlushEvents();
     }
 
     private Task DispatchEvents(params IEnumerable<IGameEvent> events)

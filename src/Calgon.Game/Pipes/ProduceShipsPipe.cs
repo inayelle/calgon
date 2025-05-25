@@ -10,7 +10,7 @@ internal sealed class ProduceShipsPipe
         {
             var events = planet.ProduceShips();
 
-            context.Events.AddRange(events);
+            context.AddEvents(events);
         }
 
         next(context);

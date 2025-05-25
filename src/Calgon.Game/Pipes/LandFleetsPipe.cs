@@ -17,7 +17,7 @@ internal sealed class LandFleetsPipe
 
             var events = fleet.Land();
 
-            context.Events.AddRange(events);
+            context.AddEvents(events);
 
             context.Fleets.Remove(fleet.Id);
         }
