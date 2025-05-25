@@ -22,6 +22,8 @@ public sealed class Game
 
     public async Task Run()
     {
+        await DispatchEvents(new GameStartedEvent());
+
         try
         {
             await Loop();
