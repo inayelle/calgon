@@ -31,7 +31,7 @@ public sealed class Planet
         Ships = ships;
     }
 
-    public void Accept(Fleet fleet)
+    public IEnumerable<IGameEvent> Accept(Fleet fleet)
     {
         if (Owner is null)
         {
@@ -45,6 +45,11 @@ public sealed class Planet
         {
             Battle(fleet);
         }
+
+        yield return new FleetArrivedEvent
+        {
+            Fleet = fleet,
+        };
     }
 
     public bool TrySendFleet(Planet destinationPlanet, float portion, [NotNullWhen(true)] out Fleet? fleet)

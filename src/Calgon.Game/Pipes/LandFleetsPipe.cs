@@ -6,20 +6,20 @@ internal sealed class LandFleetsPipe
 {
     public void Invoke(GameContext context, Pipeline<GameContext> next)
     {
-        var fleets = context.Fleets;
+        var fleets = context.Fleets.Values.ToArray();
 
-        var landedFleetIds = new List<Guid>(capacity: fleets.Count);
-
-        foreach (var fleet in fleets.Values.Where(fleet => fleet.Arrived))
+        foreach (var fleet in fleets)
         {
-            fleet.Land();
+            if (!fleet.Arrived)
+            {
+                continue;
+            }
 
-            landedFleetIds.Add(fleet.Id);
-        }
+            var events = fleet.Land();
 
-        foreach (var landedFleetId in landedFleetIds)
-        {
-            fleets.Remove(landedFleetId);
+            context.Events.AddRange(events);
+
+            context.Fleets.Remove(fleet.Id);
         }
 
         next(context);

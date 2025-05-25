@@ -41,8 +41,8 @@ public sealed class Fleet
         _distance -= Speed;
     }
 
-    public void Land()
+    public IEnumerable<IGameEvent> Land()
     {
-        DestinationPlanet.Accept(this);
+        return DestinationPlanet.Accept(this);
     }
 }
