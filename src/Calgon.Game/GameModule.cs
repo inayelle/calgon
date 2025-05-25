@@ -24,6 +24,7 @@ public sealed class GameModule : IServiceModule
         builder.UsePipe(new LandFleetsPipe().Invoke);
         builder.UsePipe(new ProduceShipsPipe().Invoke);
         builder.UsePipe(new EliminatePlayersPipe().Invoke);
+        builder.UsePipe(new EndGamePipe().Invoke);
 
         return builder.Build();
     }
