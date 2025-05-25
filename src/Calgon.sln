@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Calgon.Host", "Calgon.Host\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Calgon.Host.Tests", "Calgon.Host.Tests\Calgon.Host.Tests.csproj", "{58D07343-EA93-4528-890D-97F3973B3EF3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Calgon.Game", "Calgon.Game\Calgon.Game.csproj", "{A6A23FBF-C5E7-4952-A19B-499DEC14B9D3}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Calgon.Shared", "Calgon.Shared\Calgon.Shared.csproj", "{3E79EE07-2E35-4F12-BF34-F9A6BBAB7FB2}"
 EndProject
 Global
@@ -26,6 +28,10 @@ Global
 		{58D07343-EA93-4528-890D-97F3973B3EF3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{58D07343-EA93-4528-890D-97F3973B3EF3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{58D07343-EA93-4528-890D-97F3973B3EF3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A6A23FBF-C5E7-4952-A19B-499DEC14B9D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A6A23FBF-C5E7-4952-A19B-499DEC14B9D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A6A23FBF-C5E7-4952-A19B-499DEC14B9D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A6A23FBF-C5E7-4952-A19B-499DEC14B9D3}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3E79EE07-2E35-4F12-BF34-F9A6BBAB7FB2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3E79EE07-2E35-4F12-BF34-F9A6BBAB7FB2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3E79EE07-2E35-4F12-BF34-F9A6BBAB7FB2}.Release|Any CPU.ActiveCfg = Release|Any CPU

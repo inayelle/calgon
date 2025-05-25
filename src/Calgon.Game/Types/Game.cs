@@ -1,0 +1,80 @@
+using AnyKit.Pipelines;
+
+namespace Calgon.Game;
+
+public sealed class Game
+{
+    private static readonly TimeSpan TickPeriod = TimeSpan.FromMilliseconds(100);
+
+    private readonly GameContext _context;
+    private readonly Pipeline<GameContext> _pipeline;
+
+    private readonly SemaphoreSlim _semaphore;
+    private readonly CancellationTokenSource _completion;
+
+    public Game(Pipeline<GameContext> pipeline, GameContext context)
+    {
+        _pipeline = pipeline;
+        _context = context;
+
+        _semaphore = new SemaphoreSlim(initialCount: 1, maxCount: 1);
+        _completion = new CancellationTokenSource();
+    }
+
+    public async Task Run()
+    {
+        try
+        {
+            await Loop();
+        }
+        catch (OperationCanceledException)
+        {
+        }
+    }
+
+    public async Task SendFleet(Guid departurePlanetId, Guid destinationPlanetId, float portion)
+    {
+        await _semaphore.WaitAsync();
+
+        if (!_context.Planets.TryGetValue(departurePlanetId, out var departurePlanet))
+        {
+            return;
+        }
+
+        if (!_context.Planets.TryGetValue(destinationPlanetId, out var destinationPlanet))
+        {
+            return;
+        }
+
+        if (!departurePlanet.TrySendFleet(destinationPlanet, portion, out var fleet))
+        {
+            return;
+        }
+
+        _context.Fleets.Add(fleet.Id, fleet);
+    }
+
+    private async Task Loop()
+    {
+        var timer = new PeriodicTimer(TickPeriod);
+
+        while (await timer.WaitForNextTickAsync(_completion.Token))
+        {
+            await _semaphore.WaitAsync();
+
+            try
+            {
+                Tick();
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+    }
+
+    private void Tick()
+    {
+        _pipeline.Invoke(_context);
+    }
+}
