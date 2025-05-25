@@ -9,13 +9,15 @@ public sealed class Game
 
     private readonly GameContext _context;
     private readonly Pipeline<GameContext> _pipeline;
+    private readonly IGameEventDispatcher _eventDispatcher;
 
     private readonly SemaphoreSlim _semaphore;
 
-    public Game(Pipeline<GameContext> pipeline, GameContext context)
+    public Game(Pipeline<GameContext> pipeline, GameContext context, IGameEventDispatcher eventDispatcher)
     {
         _pipeline = pipeline;
         _context = context;
+        _eventDispatcher = eventDispatcher;
 
         _semaphore = new SemaphoreSlim(initialCount: 1, maxCount: 1);
     }
@@ -88,6 +90,6 @@ public sealed class Game
 
     private Task DispatchEvents(params IEnumerable<IGameEvent> events)
     {
-        throw new NotImplementedException();
+        return _eventDispatcher.Dispatch(_context.Id, events);
     }
 }

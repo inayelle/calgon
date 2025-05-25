@@ -13,12 +13,12 @@ internal sealed class DefaultGameFactory : IGameFactory
         _gamePipeline = gamePipeline;
     }
 
-    public Game CreateGame(IEnumerable<Player> players)
+    public Game CreateGame(IGameEventDispatcher gameEventDispatcher, IEnumerable<Player> players)
     {
         var gameMap = _defaultMapGenerator.Generate();
 
         var gameContext = new GameContext(players, gameMap.Planets);
 
-        return new Game(_gamePipeline, gameContext);
+        return new Game(_gamePipeline, gameContext, gameEventDispatcher);
     }
 }
