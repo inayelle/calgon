@@ -18,6 +18,7 @@ public sealed class GameHub : Hub<IGameHubClient>, IGameEventDispatcher
             {
                 GameStartedEvent gameStarted => SendEvent(client, gameStarted),
                 GameEndedEvent gameEnded => SendEvent(client, gameEnded),
+                FleetSentEvent fleetSent => SendEvent(client, fleetSent),
                 ShipsProducedEvent shipsProduced => SendEvent(client, shipsProduced),
                 PlayerEliminatedEvent playerEliminated => SendEvent(client, playerEliminated),
                 _ => Task.CompletedTask,
@@ -37,6 +38,29 @@ public sealed class GameHub : Hub<IGameHubClient>, IGameEventDispatcher
         return client.GameEnded(new GameEndedArgs
             {
                 WinnerId = @event.Winner.Id,
+            }
+        );
+    }
+
+    private static Task SendEvent(IGameHubClient client, FleetSentEvent @event)
+    {
+        return client.FleetSent(new FleetSentArgs
+            {
+                Fleet = new FleetSentArgs.FleetItem
+                {
+                    Id = @event.Fleet.Id,
+                    OwnerId = @event.Fleet.Owner.Id,
+                    Ships = @event.Fleet.Ships,
+                },
+                DeparturePlanet = new FleetSentArgs.DeparturePlanetItem
+                {
+                    Id = @event.Fleet.DeparturePlanet.Id,
+                    Ships = @event.Fleet.DeparturePlanet.Ships,
+                },
+                DestinationPlanet = new FleetSentArgs.DestinationPlanetItem
+                {
+                    Id = @event.Fleet.DestinationPlanet.Id,
+                },
             }
         );
     }
