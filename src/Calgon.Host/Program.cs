@@ -1,5 +1,6 @@
 using Calgon.Game;
 using Calgon.Host.Data;
+using Calgon.Host.Game;
 using Calgon.Host.Interfaces;
 using Calgon.Host.Middlewares;
 using Calgon.Host.Mvc;
@@ -40,7 +41,8 @@ builder
     .AddModule<MvcModule>()
     .AddModule<OpenApiModule>()
     .AddModule<RoomModule>()
-    .AddModule<GameModule>();
+    .AddModule<GameModule>()
+    .AddModule<SignalRModule>();
 
 builder.Services.AddDbContext<ApplicationDbContext>(
     options => options.UseNpgsql(
@@ -69,6 +71,7 @@ var app = builder.Build();
 app.UseCors("DynamicCorsPolicy");
 
 app.MapControllers();
+app.MapHub<GameHub>("/api/hubs/game");
 app.MapIdentityApi<IdentityUser>();
 app.MapOpenApi("/_/openapi/v1.json");
 app.MapScalarApiReference(
