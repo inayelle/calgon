@@ -6,9 +6,7 @@ internal sealed class EliminatePlayersPipe : IGamePipe
 {
     public void Invoke(GameContext context, Pipeline<GameContext> next)
     {
-        var deadPlayers = context.Players.Values.ToHashSet();
-        var alivePlayers = EnumeratePlayersWithAssets(context);
-        deadPlayers.ExceptWith(alivePlayers);
+        var deadPlayers = context.GetDeadPlayers();
 
         if (deadPlayers.Count == 0)
         {
@@ -16,33 +14,41 @@ internal sealed class EliminatePlayersPipe : IGamePipe
             return;
         }
 
+        var events = new List<PlayerEliminatedEvent>(capacity: deadPlayers.Count);
+
         foreach (var deadPlayer in deadPlayers)
         {
-            context.Players.Remove(deadPlayer.Id);
+            context.RemovePlayer(deadPlayer);
 
-            context.AddEvents(new PlayerEliminatedEvent
+            events.Add(new PlayerEliminatedEvent
                 {
                     Player = deadPlayer,
                 }
             );
         }
 
+        context.AddEvents(events);
+
         next(context);
     }
+}
 
-    private static IEnumerable<Player> EnumeratePlayersWithAssets(GameContext context)
+file static class GameContextExtensions
+{
+    public static List<Player> GetDeadPlayers(this GameContext context)
     {
-        foreach (var fleet in context.Fleets.Values)
-        {
-            yield return fleet.Owner;
-        }
+        var deadPlayers = new List<Player>();
 
-        foreach (var planet in context.Planets.Values)
+        foreach (var player in context.Players.Values)
         {
-            if (planet.Owner is { } player)
+            var hasAssets = context.PlayerHasAssets(player);
+
+            if (!hasAssets)
             {
-                yield return player;
+                deadPlayers.Add(player);
             }
         }
+
+        return deadPlayers;
     }
 }

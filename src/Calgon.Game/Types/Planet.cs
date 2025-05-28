@@ -52,7 +52,7 @@ public sealed class Planet
 
     public bool TrySendFleet(Planet destinationPlanet, float portion, [NotNullWhen(true)] out Fleet? fleet)
     {
-        var ships = (int)MathF.Floor(Ships / portion);
+        var ships = (int)MathF.Floor(Ships * portion);
 
         if (ships <= 0)
         {

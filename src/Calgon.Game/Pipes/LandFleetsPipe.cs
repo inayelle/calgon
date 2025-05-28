@@ -19,7 +19,7 @@ internal sealed class LandFleetsPipe : IGamePipe
 
             context.AddEvents(events);
 
-            context.Fleets.Remove(fleet.Id);
+            context.RemoveFleet(fleet);
         }
 
         next(context);
