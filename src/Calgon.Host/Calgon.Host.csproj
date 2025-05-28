@@ -27,9 +27,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Content Include="..\.dockerignore">
-        <Link>.dockerignore</Link>
-      </Content>
+      <ProjectReference Include="..\Calgon.Game\Calgon.Game.csproj" />
+      <ProjectReference Include="..\Calgon.Shared\Calgon.Shared.csproj" />
     </ItemGroup>
 
 </Project>

@@ -1,5 +1,5 @@
-using Calgon.Host.Extensions;
 using Calgon.Host.Services;
+using Calgon.Shared;
 
 namespace Calgon.Host.Mvc;
 
