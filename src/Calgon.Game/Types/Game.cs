@@ -12,6 +12,11 @@ public sealed class Game
     private readonly IGameEventDispatcher _eventDispatcher;
 
     private readonly SemaphoreSlim _semaphore;
+    private readonly CancellationTokenSource _completion;
+
+    public GameState State { get; private set; }
+
+    public Guid Id => _context.Id;
 
     public Game(Pipeline<GameContext> pipeline, GameContext context, IGameEventDispatcher eventDispatcher)
     {
@@ -20,11 +25,43 @@ public sealed class Game
         _eventDispatcher = eventDispatcher;
 
         _semaphore = new SemaphoreSlim(initialCount: 1, maxCount: 1);
+        _completion = new CancellationTokenSource();
+
+        State = GameState.Idle;
+    }
+
+    public async Task AddPlayer(Guid playerId)
+    {
+        using var lease = await _semaphore.Acquire();
+
+        if (State is not GameState.Idle)
+        {
+            throw new InvalidOperationException("Players should be added while in Idle state.");
+        }
+
+        if (!_context.TryAddPlayer(new Player(playerId, "Name stub")))
+        {
+            throw new InvalidOperationException("Couldn't add a player to the game.");
+        }
     }
 
     public async Task Run()
     {
-        await DispatchEvents(new GameStartedEvent());
+        if (_context.Players.Count <= 1)
+        {
+            throw new InvalidOperationException("There should be at least two players in the game.");
+        }
+
+        await DispatchEvents(new GameStartedEvent
+            {
+                MapSize = _context.MapSize,
+                Planets = _context.Planets,
+                Players = _context.Players,
+                TickPeriod = TickPeriod,
+            }
+        );
+
+        State = GameState.Running;
 
         try
         {
@@ -58,7 +95,7 @@ public sealed class Game
             return;
         }
 
-        _context.Fleets.Add(fleet.Id, fleet);
+        _context.AddFleet(fleet);
 
         await DispatchEvents(new FleetSentEvent
             {
@@ -71,7 +108,7 @@ public sealed class Game
     {
         var timer = new PeriodicTimer(TickPeriod);
 
-        while (await timer.WaitForNextTickAsync())
+        while (await timer.WaitForNextTickAsync(_completion.Token))
         {
             using var lease = await _semaphore.Acquire();
 
@@ -88,8 +125,14 @@ public sealed class Game
         return _context.FlushEvents();
     }
 
-    private Task DispatchEvents(params IEnumerable<IGameEvent> events)
+    private Task DispatchEvents(params IReadOnlyCollection<IGameEvent> events)
     {
+        if (events.OfType<GameEndedEvent>().Any())
+        {
+            _completion.Cancel();
+            State = GameState.Ended;
+        }
+
         return _eventDispatcher.Dispatch(_context.Id, events);
     }
 }

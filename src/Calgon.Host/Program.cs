@@ -42,6 +42,7 @@ builder
     .AddModule<OpenApiModule>()
     .AddModule<RoomModule>()
     .AddModule<GameModule>()
+    .AddModule<GameHubModule>()
     .AddModule<SignalRModule>();
 
 builder.Services.AddDbContext<ApplicationDbContext>(
