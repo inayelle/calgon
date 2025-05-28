@@ -2,7 +2,7 @@ namespace Calgon.Game;
 
 public sealed class Fleet
 {
-    private const float Speed = 0.05f;
+    public const float Speed = 0.05f;
 
     private float _distance;
 

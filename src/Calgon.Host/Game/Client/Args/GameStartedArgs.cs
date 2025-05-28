@@ -6,6 +6,7 @@ public sealed class GameStartedArgs
 {
     public required int MapSize { get; init; }
     public required TimeSpan TickPeriod { get; init; }
+    public required float FleedSpeed { get; init; }
 
     public required IReadOnlyDictionary<Guid, PlanetItem> Planets { get; init; }
     public required IReadOnlyDictionary<Guid, PlayerItem> Players { get; init; }

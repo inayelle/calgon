@@ -55,6 +55,7 @@ internal sealed class GameHubEventDispatcher : IGameEventDispatcher
             {
                 MapSize = @event.MapSize,
                 TickPeriod = @event.TickPeriod,
+                FleedSpeed = @event.FleetSpeed,
                 Planets = @event
                     .Planets
                     .Values
