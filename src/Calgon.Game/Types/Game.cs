@@ -55,9 +55,10 @@ public sealed class Game
         await DispatchEvents(new GameStartedEvent
             {
                 MapSize = _context.MapSize,
+                TickPeriod = TickPeriod,
+                FleetSpeed = Fleet.Speed,
                 Planets = _context.Planets,
                 Players = _context.Players,
-                TickPeriod = TickPeriod,
             }
         );
 
