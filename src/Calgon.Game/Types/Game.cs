@@ -39,10 +39,14 @@ public sealed class Game
             throw new InvalidOperationException("Players should be added while in Idle state.");
         }
 
-        if (!_context.TryAddPlayer(new Player(playerId, "Name stub")))
+        int colorIndex = _context.Players.Count;
+        var player = new Player(playerId, "Name stub", colorIndex);
+
+        if (!_context.TryAddPlayer(player))
         {
             throw new InvalidOperationException("Couldn't add a player to the game.");
         }
+
     }
 
     public async Task Run()

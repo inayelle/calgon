@@ -68,30 +68,31 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+var generator = app.Services.GetRequiredService<IMapGenerator>();
+var map = generator.Generate();
+//app.UseCors("DynamicCorsPolicy");
 
-app.UseCors("DynamicCorsPolicy");
+//app.MapControllers();
+//app.MapHub<GameHub>("/api/hubs/game");
+//app.MapIdentityApi<IdentityUser>();
+//app.MapOpenApi("/_/openapi/v1.json");
+//app.MapScalarApiReference(
+//    "/_/openapi/scalar",
+//    scalar =>
+//    {
+//        scalar
+//            .WithOpenApiRoutePattern("/_/openapi/v1.json")
+//            .WithDarkMode(true)
+//            .WithTheme(ScalarTheme.DeepSpace);
+//    }
+//);
 
-app.MapControllers();
-app.MapHub<GameHub>("/api/hubs/game");
-app.MapIdentityApi<IdentityUser>();
-app.MapOpenApi("/_/openapi/v1.json");
-app.MapScalarApiReference(
-    "/_/openapi/scalar",
-    scalar =>
-    {
-        scalar
-            .WithOpenApiRoutePattern("/_/openapi/v1.json")
-            .WithDarkMode(true)
-            .WithTheme(ScalarTheme.DeepSpace);
-    }
-);
+//app.UseMiddleware<CurrentUserMiddleware>();
 
-app.UseMiddleware<CurrentUserMiddleware>();
+//using (var scope = app.Services.CreateAsyncScope())
+//{
+//    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+//    await context.Database.MigrateAsync();
+//}
 
-using (var scope = app.Services.CreateAsyncScope())
-{
-    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    await context.Database.MigrateAsync();
-}
-
-await app.RunAsync();
+//await app.RunAsync();

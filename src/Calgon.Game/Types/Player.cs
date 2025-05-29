@@ -5,11 +5,13 @@ public sealed class Player : IEquatable<Player>
     public Guid Id { get; init; }
     public string Name { get; init; }
 
-    public Player(Guid id, string name)
+    public Player(Guid id, string name, int color)
     {
         Id = id;
         Name = name;
+        Color = color;
     }
+    public int Color { get; init; }
 
     public bool Equals(Player? other)
     {

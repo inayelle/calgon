@@ -6,7 +6,7 @@
             "applicationUrl": "http://127.0.0.1:5000",
             "environmentVariables": {
                 "ASPNETCORE_ENVIRONMENT": "Local",
-                "CALGON_Infrastructure__ConnectionString": "Host=localhost;Username=app;Password=app;Database=app"
+                "CALGON_Infrastructure__ConnectionString": "Host=127.0.0.1;Port=10000;Username=app;Password=app;Database=app"
             }
         }
     }

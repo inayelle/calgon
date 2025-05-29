@@ -79,6 +79,7 @@ internal sealed class GameHubEventDispatcher : IGameEventDispatcher
                         {
                             Id = player.Id,
                             Name = player.Name,
+                            Color = player.Color,
                         }
                     ),
             }
