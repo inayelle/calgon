@@ -49,11 +49,11 @@ public sealed class GameService
         );
     }
 
-    public async Task AddPlayer(Guid roomId, Guid playerId)
+    public async Task AddPlayer(Guid roomId, Guid playerId, string? playerName)
     {
         var game = GetGame(roomId);
 
-        await game.AddPlayer(playerId);
+        await game.AddPlayer(playerId, playerName);
 
         _logger.LogInformation(
             "Player added to the game started. {GameId} {PlayerId}",

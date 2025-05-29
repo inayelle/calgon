@@ -30,7 +30,7 @@ public sealed class Game
         State = GameState.Idle;
     }
 
-    public async Task AddPlayer(Guid playerId)
+    public async Task AddPlayer(Guid playerId, string? playerName)
     {
         using var lease = await _semaphore.Acquire();
 
@@ -39,8 +39,11 @@ public sealed class Game
             throw new InvalidOperationException("Players should be added while in Idle state.");
         }
 
-        int colorIndex = _context.Players.Count;
-        var player = new Player(playerId, "Name stub", colorIndex);
+        var player = new Player(
+            playerId,
+            playerName,
+            color: _context.Players.Count
+        );
 
         if (!_context.TryAddPlayer(player))
         {
