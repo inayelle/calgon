@@ -25,8 +25,10 @@ public sealed class GameHub : Hub<IGameHubClient>, IGameHubServer
             throw new HubException("Missing room identifier.");
         }
 
+        var user = Context.User!;
+
         _gameService.TryAddGame(roomId);
-        await _gameService.AddPlayer(roomId, Context.User!.GetUserId());
+        await _gameService.AddPlayer(roomId, user.GetUserId(), user.Identity?.Name);
 
         await Groups.AddToGroupAsync(Context.ConnectionId, roomId.ToString());
     }
