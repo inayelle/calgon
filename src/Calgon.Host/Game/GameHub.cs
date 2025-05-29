@@ -29,7 +29,6 @@ public sealed class GameHub : Hub<IGameHubClient>, IGameHubServer
         await _gameService.AddPlayer(roomId, Context.User!.GetUserId());
 
         await Groups.AddToGroupAsync(Context.ConnectionId, roomId.ToString());
-        Context.Items["RoomId"] = roomId;
     }
 
     public Task StartGame()
@@ -53,6 +52,7 @@ public sealed class GameHub : Hub<IGameHubClient>, IGameHubServer
 
         await _gameService.SendFleet(
             roomId,
+            playerId: Context.User!.GetUserId(),
             args.DeparturePlanetId,
             args.DestinationPlanetId,
             args.Portion

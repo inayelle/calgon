@@ -78,6 +78,7 @@ public sealed class Game
     }
 
     public async Task SendFleet(
+        Guid playerId,
         Guid departurePlanetId,
         Guid destinationPlanetId,
         float portion
@@ -85,12 +86,22 @@ public sealed class Game
     {
         using var lease = await _semaphore.Acquire();
 
+        if (!_context.Players.TryGetValue(playerId, out var player))
+        {
+            return;
+        }
+
         if (!_context.Planets.TryGetValue(departurePlanetId, out var departurePlanet))
         {
             return;
         }
 
         if (!_context.Planets.TryGetValue(destinationPlanetId, out var destinationPlanet))
+        {
+            return;
+        }
+
+        if (!player.Equals(departurePlanet.Owner))
         {
             return;
         }

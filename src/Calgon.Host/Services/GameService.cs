@@ -64,6 +64,7 @@ public sealed class GameService
 
     public async Task SendFleet(
         Guid roomId,
+        Guid playerId,
         Guid departurePlanetId,
         Guid destinationPlanetId,
         float portion
@@ -71,7 +72,12 @@ public sealed class GameService
     {
         var game = GetGame(roomId);
 
-        await game.SendFleet(departurePlanetId, destinationPlanetId, portion);
+        await game.SendFleet(
+            playerId,
+            departurePlanetId,
+            destinationPlanetId,
+            portion
+        );
     }
 
     private Calgon.Game.Game GetGame(Guid roomId)
