@@ -3,11 +3,12 @@ using Calgon.Host.Data;
 using Calgon.Host.Data.Entities;
 using Calgon.Host.Interfaces;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Calgon.Host.Services;
 
-public class RoomService(ApplicationDbContext context, ICurrentUserService currentUser, UserManager<IdentityUser> userManager)
+public class RoomService(ApplicationDbContext context, ICurrentUserService currentUser, UserManager<IdentityUser> userManager, IHubContext<RoomHub> hubContext) 
 {
     public async Task<Room> Create(CreateRoomModel model)
     {
@@ -69,6 +70,8 @@ public class RoomService(ApplicationDbContext context, ICurrentUserService curre
         context.RoomMembers.Add(roomMember);
         await context.SaveChangesAsync();
 
+        await hubContext.Clients.Group(room.Id.ToString()).SendAsync("room_update", await GetInfo(room.Id));
+
         return room.Id;
     }
 
@@ -87,10 +90,11 @@ public class RoomService(ApplicationDbContext context, ICurrentUserService curre
         }
 
         // Fetch all users and perform the filtering in memory
-        var roomUsers = await Task.WhenAll(
-            room.RoomMembers.Select(async (rm) => await userManager.FindByIdAsync(rm.UserId))
-            .ToList()
-        );
+        var roomMemberIds = room.RoomMembers
+            .Select(x => x.UserId).ToList();
+        var roomUsers = await userManager
+            .Users
+            .Where(u => roomMemberIds.Contains(u.Id)).ToListAsync();
 
         var roomMembers = roomUsers.Select(u => new RoomMemberModel
         {
@@ -124,6 +128,8 @@ public class RoomService(ApplicationDbContext context, ICurrentUserService curre
 
         context.RoomMembers.Remove(roomMember);
         await context.SaveChangesAsync();
+        
+        await hubContext.Clients.Group(room.Id.ToString()).SendAsync("room_update", await GetInfo(room.Id));
 
         return room;
     }

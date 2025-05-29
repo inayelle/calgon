@@ -73,6 +73,7 @@ app.UseCors("DynamicCorsPolicy");
 
 app.MapControllers();
 app.MapHub<GameHub>("/api/hubs/game");
+app.MapHub<RoomHub>("/api/hubs/room");
 app.MapIdentityApi<IdentityUser>();
 app.MapOpenApi("/_/openapi/v1.json");
 app.MapScalarApiReference(
