@@ -5,17 +5,16 @@ internal sealed class DefaultMapGenerator : IMapGenerator
     private const int MapSize = 300;
 
     private const int PlanetsCapacity = 18;
-    private const int PlanetMinSize = 1;
-    private const int PlanetMaxSize = 3;
+    private const int PlanetMinSize = 10;
+    private const int PlanetMaxSize = 15;
     private const int GridSize = 6; // 6x6 = 36 "zones"
+    private const int CellSize = MapSize / GridSize;
     private const int MinDistance = 10; // Min distance between planet centers
 
     private static readonly Random Random = Random.Shared;
 
     public Map Generate()
     {
-        var cellSize = MapSize / GridSize;
-
         var zoneIndices = Enumerable.Range(0, GridSize * GridSize).ToArray();
         Random.Shuffle(zoneIndices); // Use built-in shuffle
 
@@ -32,11 +31,11 @@ internal sealed class DefaultMapGenerator : IMapGenerator
             var gy = index / GridSize;
 
             // "zone" center + random offset
-            var baseX = gx * cellSize + cellSize / 2;
-            var baseY = gy * cellSize + cellSize / 2;
+            var baseX = gx * CellSize + CellSize / 2;
+            var baseY = gy * CellSize + CellSize / 2;
 
-            var offsetX = Random.Next(-cellSize / 4, cellSize / 4);
-            var offsetY = Random.Next(-cellSize / 4, cellSize / 4);
+            var offsetX = Random.Next(-CellSize / 4, CellSize / 4);
+            var offsetY = Random.Next(-CellSize / 4, CellSize / 4);
 
             var x = Math.Clamp(baseX + offsetX, size, MapSize - size);
             var y = Math.Clamp(baseY + offsetY, size, MapSize - size);
