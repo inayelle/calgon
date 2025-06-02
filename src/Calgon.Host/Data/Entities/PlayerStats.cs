@@ -24,11 +24,11 @@ public sealed class PlayerStats
         };
     }
 
-    public void AddGame(bool playerIsWinner)
+    public void AddGame(Guid winnerId)
     {
         TotalGames++;
 
-        if (playerIsWinner)
+        if (PlayerId == winnerId)
         {
             WonGames++;
         }

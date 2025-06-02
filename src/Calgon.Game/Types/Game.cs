@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using AnyKit.Pipelines;
 using Calgon.Shared;
 
@@ -12,7 +13,6 @@ public sealed class Game
 
     private readonly List<Player> _players;
     private readonly SemaphoreSlim _semaphore;
-    private readonly CancellationTokenSource _completion;
 
     public GameState State { get; private set; }
 
@@ -34,7 +34,6 @@ public sealed class Game
 
         _players = new List<Player>(capacity: 6);
         _semaphore = new SemaphoreSlim(initialCount: 1, maxCount: 1);
-        _completion = new CancellationTokenSource();
 
         State = GameState.Idle;
     }
@@ -62,7 +61,7 @@ public sealed class Game
         _players.Add(player);
     }
 
-    public async Task Run()
+    public async Task<Player> Run()
     {
         if (_context.Players.Count <= 1)
         {
@@ -81,13 +80,7 @@ public sealed class Game
 
         State = GameState.Running;
 
-        try
-        {
-            await Loop();
-        }
-        catch (OperationCanceledException)
-        {
-        }
+        return await Loop();
     }
 
     public async Task SendFleet(
@@ -133,16 +126,28 @@ public sealed class Game
         );
     }
 
-    private async Task Loop()
+    private async Task<Player> Loop()
     {
-        while (await _ticker.WaitForNextTickAsync(_completion.Token))
+        while (await _ticker.WaitForNextTickAsync())
         {
             using var lease = await _semaphore.Acquire();
 
             var events = Tick();
 
             await DispatchEvents(events);
+
+            var gameEndedEvent = events.OfType<GameEndedEvent>().FirstOrDefault();
+
+            if (gameEndedEvent is null)
+            {
+                continue;
+            }
+
+            State = GameState.Ended;
+            return gameEndedEvent.Winner;
         }
+
+        throw new UnreachableException("The game always ends within the game loop.");
     }
 
     private IGameEvent[] Tick()
@@ -154,12 +159,6 @@ public sealed class Game
 
     private Task DispatchEvents(params IReadOnlyCollection<IGameEvent> events)
     {
-        if (events.OfType<GameEndedEvent>().Any())
-        {
-            _completion.Cancel();
-            State = GameState.Ended;
-        }
-
         return _eventDispatcher.Dispatch(_context.Id, events);
     }
 }
