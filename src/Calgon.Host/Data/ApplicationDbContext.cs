@@ -9,4 +9,5 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 {
     public DbSet<Room> Rooms { get; set; } = null!;
     public DbSet<RoomMember> RoomMembers { get; set; } = null!;
+    public DbSet<PlayerStats> PlayerStats { get; set; } = null!;
 }

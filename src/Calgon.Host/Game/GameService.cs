@@ -1,7 +1,8 @@
 using System.Collections.Concurrent;
 using Calgon.Game;
+using Calgon.Host.Services;
 
-namespace Calgon.Host.Services;
+namespace Calgon.Host.Game;
 
 public sealed class GameService
 {
@@ -9,17 +10,21 @@ public sealed class GameService
     private readonly IGameFactory _gameFactory;
     private readonly ILogger<GameService> _logger;
 
+    private readonly PlayerStatsService _playerStatsService;
+
     private readonly ConcurrentDictionary<Guid, Calgon.Game.Game> _games;
 
     public GameService(
         IGameEventDispatcher gameEventDispatcher,
         IGameFactory gameFactory,
-        ILogger<GameService> logger
+        ILogger<GameService> logger,
+        PlayerStatsService playerStatsService
     )
     {
         _gameEventDispatcher = gameEventDispatcher;
         _gameFactory = gameFactory;
         _logger = logger;
+        _playerStatsService = playerStatsService;
 
         _games = new ConcurrentDictionary<Guid, Calgon.Game.Game>();
     }
@@ -41,7 +46,7 @@ public sealed class GameService
             throw new InvalidOperationException("Game is not idle.");
         }
 
-        Task.Run(() => game.Run());
+        Task.Run(() => RunGame(game));
 
         _logger.LogInformation(
             "Game started. {GameId}",
@@ -88,5 +93,25 @@ public sealed class GameService
         }
 
         return game;
+    }
+
+    private async Task RunGame(Calgon.Game.Game game)
+    {
+        var winner = await game.Run();
+
+        _games.TryRemove(game.Id, out _);
+
+        var playerIds = game
+            .Players
+            .Select(player => player.Id)
+            .ToArray();
+
+        await _playerStatsService.AddGame(playerIds, winner.Id);
+
+        _logger.LogInformation(
+            "Game ended. {GameId} {WinnerId}",
+            game.Id,
+            winner.Id
+        );
     }
 }
