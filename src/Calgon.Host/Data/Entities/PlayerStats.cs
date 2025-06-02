@@ -20,7 +20,7 @@ public sealed class PlayerStats
         {
             PlayerId = playerId,
             TotalGames = 1,
-            WonGames = didWinFirstGame ? 0 : 1,
+            WonGames = didWinFirstGame ? 1 : 0,
         };
     }
 
