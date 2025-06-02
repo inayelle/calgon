@@ -53,7 +53,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(
 
 builder.Services
     .AddScoped<CurrentUserMiddleware>()
-    .AddScoped<ICurrentUserService, CurrentUserService>();
+    .AddScoped<ICurrentUserService, CurrentUserService>()
+    .AddScoped<PlayerStatsService>();
 
 builder.Services.AddCors(options =>
 {
