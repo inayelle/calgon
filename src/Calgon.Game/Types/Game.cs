@@ -10,12 +10,15 @@ public sealed class Game
     private readonly Pipeline<GameContext> _pipeline;
     private readonly IGameEventDispatcher _eventDispatcher;
 
+    private readonly List<Player> _players;
     private readonly SemaphoreSlim _semaphore;
     private readonly CancellationTokenSource _completion;
 
     public GameState State { get; private set; }
 
     public Guid Id => _context.Id;
+
+    public IReadOnlyList<Player> Players => _players;
 
     public Game(
         IGameTicker ticker,
@@ -29,6 +32,7 @@ public sealed class Game
         _context = context;
         _eventDispatcher = eventDispatcher;
 
+        _players = new List<Player>(capacity: 6);
         _semaphore = new SemaphoreSlim(initialCount: 1, maxCount: 1);
         _completion = new CancellationTokenSource();
 
@@ -55,6 +59,7 @@ public sealed class Game
             throw new InvalidOperationException("Couldn't add a player to the game.");
         }
 
+        _players.Add(player);
     }
 
     public async Task Run()
