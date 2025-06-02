@@ -36,6 +36,15 @@ public sealed class PlayerStatsService
         await _dbContext.SaveChangesAsync();
     }
 
+    public Task<PlayerStats?> GetPlayerStats(Guid playerId)
+    {
+        return _dbContext
+            .PlayerStats
+            .AsNoTracking()
+            .Where(stats => stats.PlayerId == playerId)
+            .SingleOrDefaultAsync();
+    }
+
     private Task<Dictionary<Guid, PlayerStats>> GetPlayerStats(IReadOnlyCollection<Guid> playerIds)
     {
         return _dbContext
