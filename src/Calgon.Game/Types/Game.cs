@@ -5,8 +5,7 @@ namespace Calgon.Game;
 
 public sealed class Game
 {
-    private static readonly TimeSpan TickPeriod = TimeSpan.FromMilliseconds(50);
-
+    private readonly IGameTicker _ticker;
     private readonly GameContext _context;
     private readonly Pipeline<GameContext> _pipeline;
     private readonly IGameEventDispatcher _eventDispatcher;
@@ -18,8 +17,14 @@ public sealed class Game
 
     public Guid Id => _context.Id;
 
-    public Game(Pipeline<GameContext> pipeline, GameContext context, IGameEventDispatcher eventDispatcher)
+    public Game(
+        IGameTicker ticker,
+        Pipeline<GameContext> pipeline,
+        GameContext context,
+        IGameEventDispatcher eventDispatcher
+    )
     {
+        _ticker = ticker;
         _pipeline = pipeline;
         _context = context;
         _eventDispatcher = eventDispatcher;
@@ -62,7 +67,7 @@ public sealed class Game
         await DispatchEvents(new GameStartedEvent
             {
                 MapSize = _context.MapSize,
-                TickPeriod = TickPeriod,
+                TickPeriod = _ticker.Period,
                 FleetSpeed = Fleet.Speed,
                 Planets = _context.Planets,
                 Players = _context.Players,
@@ -125,9 +130,7 @@ public sealed class Game
 
     private async Task Loop()
     {
-        var timer = new PeriodicTimer(TickPeriod);
-
-        while (await timer.WaitForNextTickAsync(_completion.Token))
+        while (await _ticker.WaitForNextTickAsync(_completion.Token))
         {
             using var lease = await _semaphore.Acquire();
 

@@ -4,6 +4,8 @@ namespace Calgon.Game;
 
 internal sealed class DefaultGameFactory : IGameFactory
 {
+    private static readonly TimeSpan TickPeriod = TimeSpan.FromMilliseconds(50);
+
     private readonly IMapGenerator _defaultMapGenerator;
     private readonly Pipeline<GameContext> _gamePipeline;
 
@@ -19,6 +21,8 @@ internal sealed class DefaultGameFactory : IGameFactory
 
         var gameContext = new GameContext(gameId, gameMap.Size, gameMap.Planets);
 
-        return new Game(_gamePipeline, gameContext, gameEventDispatcher);
+        var ticker = new PeriodicTimerGameTicker(TickPeriod);
+
+        return new Game(ticker, _gamePipeline, gameContext, gameEventDispatcher);
     }
 }
