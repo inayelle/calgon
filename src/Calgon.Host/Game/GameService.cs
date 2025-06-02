@@ -1,7 +1,7 @@
 using System.Collections.Concurrent;
 using Calgon.Game;
 
-namespace Calgon.Host.Services;
+namespace Calgon.Host.Game;
 
 public sealed class GameService
 {
